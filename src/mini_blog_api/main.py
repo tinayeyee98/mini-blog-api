@@ -1,12 +1,16 @@
 import structlog
 from fastapi import FastAPI
 from typing import Any, Dict, List
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from .__init__ import __name__ as app_name
 from .__init__ import __version__ as app_version
 from .config import Settings, get_settings
 from .middleware import configure_middleware
-from .routes import internal
+from .models.base_model import AppInfo
+from .controllers import internal_controller, user_controller
+from .repositories.db import get_db
+from .repositories.user_repository import UserRepository
 
 log: structlog.BoundLogger = structlog.get_logger()
 settings: Settings = get_settings()
@@ -37,9 +41,10 @@ def create_app(
     openapi_tags: List[Dict[str, Any]] = []
 
     # Routes and additional information for openapi
-    # app.info = AppInfo(app_name=app.title, app_version=app.version)
-    app.include_router(internal.router, prefix=settings.internal_routes_prefix)
-    openapi_tags.extend(internal.openapi_tags)
+    app.info = AppInfo(app_name=app.title, app_version=app.version)
+    app.include_router(internal_controller.router, prefix=settings.internal_routes_prefix)
+    openapi_tags.extend(internal_controller.openapi_tags)
+    # app.include_router(user_controller.router, prefix=settings.api_prefix)
 
     # Additional information for openapi docs
     app.openapi_tags = openapi_tags
@@ -52,3 +57,7 @@ def create_app(
     app.add_event_handler("shutdown", shutdown)
 
     return app
+
+def init_db(db_uri: str = settings.db_uri, db_name: str = settings.db_name):
+    db: AsyncIOMotorDatabase = get_db(db_uri, db_name)
+    UserRepository.initialize(db)
