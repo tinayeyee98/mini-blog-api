@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+if [[ -z "$PORT" ]]
+then
+    PORT=`poetry run python -m portpicker $$`
+else
+    PORT=$PORT
+fi
+
+poetry run uvicorn mini_blog_api.main:create_app --port $PORT --factory
+unset PORT
+

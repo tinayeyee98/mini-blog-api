@@ -4,8 +4,8 @@ FROM python:3.8
 # Set the working directory inside the container
 WORKDIR /mini-blog-api
 
-# Copy the requirements.txt file into the container
-COPY requirements.txt .
+# Copy mini-blog application into the container
+COPY . .
 
 # Create a virtual environment
 RUN python -m venv .venv
@@ -17,7 +17,7 @@ ENV PATH="/mini-blog-api/.venv/bin:$PATH"
 RUN pip install --no-cache-dir --upgrade pip
 
 # Install the required python packages
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install .
 
 # Copy the entire application directory into the container
 COPY mini-blog-api/ .
@@ -26,4 +26,4 @@ COPY mini-blog-api/ .
 EXPOSE 8000
 
 # Serve application with uvicorn server.
-ENTRYPOINT ["uvicorn", "mini_blog_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--factory"]
+ENTRYPOINT ["uvicorn", "mini_blog_api.main:create_app", "--host", "0.0.0.0", "--port", "8000", "--factory"]
