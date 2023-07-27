@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "mini_blog_api"
+version = "0.1.0"
+description = "Backend server for mini-blog application"
+authors = ["Tin Aye Yee <tinayeyee6308@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.100.0"
+uvicorn = "^0.23.1"
+structlog = "^23.1.0"
+starlette-context = "^0.3.6"
+httpx = "^0.24.1"
+pymongo = "^4.4.1"
+requests = "^2.31.0"
+pydantic = "^2.1.1"
+pydantic-settings = "^2.0.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-asyncio = "^0.21.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

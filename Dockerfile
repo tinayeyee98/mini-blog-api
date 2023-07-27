@@ -26,4 +26,4 @@ COPY mini-blog-api/ .
 EXPOSE 8000
 
 # Serve application with uvicorn server.
-ENTRYPOINT ["uvicorn", "mini_blog_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--factory"]
+ENTRYPOINT ["uvicorn", "mini_blog_api.main:create_app", "--host", "0.0.0.0", "--port", "8000", "--factory"]
