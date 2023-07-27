@@ -18,6 +18,10 @@ class Settings(BaseSettings):
         title="Healthcheck Response",
         description="The response content for healthcheck requests",
     )
+    api_prefix: str = Field(
+        default="/api/v1",
+        title="API Prefix"
+    )
     db_url: str = Field(
         default="mongodb://localhost:27017/mini_blog_db", title="Database URL"
     )

@@ -16,6 +16,8 @@ pymongo = "^4.4.1"
 requests = "^2.31.0"
 pydantic = "^2.1.1"
 pydantic-settings = "^2.0.2"
+asyncio = "^3.4.3"
+aiohttp = "^3.8.5"
 
 
 [tool.poetry.group.dev.dependencies]
