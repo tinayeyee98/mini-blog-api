@@ -63,7 +63,7 @@ class AppInfo(BaseModel):
     )
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "app_name": "oss_resourcesapi",
                 "app_version": "1.0.0",

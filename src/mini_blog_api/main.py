@@ -9,8 +9,7 @@ from .config import Settings, get_settings
 from .middleware import configure_middleware
 from .models.base_model import AppInfo
 from .controllers import internal_controller, user_controller
-from .repositories.db import get_db
-from .repositories.user_repository import UserRepository
+from .repositories.db import get_db, UsersCollection
 
 log: structlog.BoundLogger = structlog.get_logger()
 settings: Settings = get_settings()
@@ -44,7 +43,7 @@ def create_app(
     app.info = AppInfo(app_name=app.title, app_version=app.version)
     app.include_router(internal_controller.router, prefix=settings.internal_routes_prefix)
     openapi_tags.extend(internal_controller.openapi_tags)
-    # app.include_router(user_controller.router, prefix=settings.api_prefix)
+    app.include_router(user_controller.router, prefix=settings.api_prefix)
 
     # Additional information for openapi docs
     app.openapi_tags = openapi_tags
@@ -59,5 +58,6 @@ def create_app(
     return app
 
 def init_db(db_uri: str = settings.db_uri, db_name: str = settings.db_name):
+    log.msg("Call this")
     db: AsyncIOMotorDatabase = get_db(db_uri, db_name)
-    UserRepository.initialize(db)
+    UsersCollection.initialize(db)
