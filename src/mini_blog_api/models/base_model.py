@@ -7,33 +7,10 @@ from ..config import Settings, get_settings
 
 settings: Settings = get_settings()
 
-
-class ObjectIdStr(str):
-    """Data model for BSON ObjectId str."""
-
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        try:
-            ObjectId(v)
-        except InvalidId:
-            raise ValueError("invalid ObjectId str")
-        return cls(v)
-
-    def __str__(self) -> str:
-        return super().__str__()
-
-    def __repr__(self) -> str:
-        return "ObjectIdStr(%s)" % self
-
-
 class BaseModel(PydanticBaseModel):
     class Config:
         arbitrary_types_allowed = True
-        json_encoders = {ObjectIdStr: str, ObjectId: str}
+        json_encoders = {ObjectId: str}
 
 
 class ErrorMessage(BaseModel):

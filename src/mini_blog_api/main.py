@@ -9,7 +9,8 @@ from .config import Settings, get_settings
 from .middleware import configure_middleware
 from .models.base_model import AppInfo
 from .controllers import internal_controller, user_controller
-from .repositories.db import get_db, UsersCollection
+from .repositories.db import get_db
+from .repositories.user_repository import UserRepository
 
 log: structlog.BoundLogger = structlog.get_logger()
 settings: Settings = get_settings()
@@ -36,12 +37,15 @@ def create_app(
         title=app_name,
         version=app_version,
     )
+    init_db()  # Initialize Database
+
     # Initial variable to incliude extra information for openapi tags
     openapi_tags: List[Dict[str, Any]] = []
 
     # Routes and additional information for openapi
     app.info = AppInfo(app_name=app.title, app_version=app.version)
-    app.include_router(internal_controller.router, prefix=settings.internal_routes_prefix)
+    app.include_router(internal_controller.router,
+                       prefix=settings.internal_routes_prefix)
     openapi_tags.extend(internal_controller.openapi_tags)
     app.include_router(user_controller.router, prefix=settings.api_prefix)
 
@@ -54,10 +58,9 @@ def create_app(
     # Register application lifecycle envents
     app.add_event_handler("startup", startup)
     app.add_event_handler("shutdown", shutdown)
-
     return app
 
+
 def init_db(db_uri: str = settings.db_uri, db_name: str = settings.db_name):
-    log.msg("Call this")
     db: AsyncIOMotorDatabase = get_db(db_uri, db_name)
-    UsersCollection.initialize(db)
+    UserRepository.initialize(db=db)

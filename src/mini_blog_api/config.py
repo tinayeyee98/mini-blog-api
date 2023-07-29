@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     db_name: str = Field(
         default="mini_blog_db", title="DB Name"
     )
+    password_length: int = Field(
+        default=12, title="Random generate password length"
+    )
     jwt_secret: str = Field(
         default="miniblogtokensecret", title="JWT Token Secret"
     )
