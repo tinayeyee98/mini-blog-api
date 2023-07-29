@@ -22,6 +22,7 @@ class UserRepository:
             user_dict: Dict[str, Any] = await cls.collection.find_one(dict(username=username))
             if user_dict:
                 return User.model_validate(user_dict)
+            
         except ServerSelectionTimeoutError as error:
             log.msg(error)
             raise HTTPException(500, "Failed to connect to MongoDB.")
@@ -37,6 +38,7 @@ class UserRepository:
             sanitize(user_data)
             await cls.collection.insert_one(user_data)
             return {"username": user_data.get("username"), "password": user_data.get("password")}
+        
         except ServerSelectionTimeoutError as error:
             log.msg(error)
             raise HTTPException(500, "Failed to connect to MongoDB.") 

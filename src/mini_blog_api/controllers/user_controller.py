@@ -14,24 +14,12 @@ log = structlog.get_logger()
 settings: Settings = get_settings()
 
 
-openapi_tags = [
-    {
-        "name": "User Auth",
-        "description": "Endpoints for user auth controller",
-    }
-]
-
 router = APIRouter(
-    tags=["auth"], responses=default_responses,
+    tags=["User Auth Endpoints"], responses=default_responses,
 )
 
 
-def generate_token(user: User) -> str:
-    token = jwt.encode(user.model_dump(), settings.jwt_secret,
-                       algorithm=settings.jwt_alg)
-
-
-@router.post("/register", response_model=User)
+@router.post("/auth/register", response_model=User)
 async def register_user(user: UserPayload, user_repo: UserRepository = Depends()):
     existing_user = await user_repo.find_user(user.username)
 
