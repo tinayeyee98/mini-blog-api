@@ -23,7 +23,7 @@ async def create_category(category: CategoryPayload, category_repo: CategoryRepo
     if existing_category:
         raise HTTPException(status_code=403, detail="Category already exists.")
 
-    category_doc = await category_repo.insert_category(category)
+    await category_repo.insert_category(category)
 
     raise HTTPException(status_code=201, detail="New category is created.")
 

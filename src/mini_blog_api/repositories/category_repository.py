@@ -18,6 +18,7 @@ class CategoryRepository:
     def initialize(cls, db: AsyncIOMotorClient) -> None:
         cls.collection = db["category"]
 
+    @classmethod
     async def find_category(cls, name):
         try:
             category_dict: Dict[str, Any] = await cls.collection.find_one(dict(name=name))

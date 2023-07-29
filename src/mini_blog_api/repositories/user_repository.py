@@ -16,7 +16,8 @@ class UserRepository:
     @classmethod
     def initialize(cls, db: AsyncIOMotorClient) -> None:
         cls.collection = db["users"]
-
+    
+    @classmethod
     async def find_user(cls, username):
         try:
             user_dict: Dict[str, Any] = await cls.collection.find_one(dict(username=username))

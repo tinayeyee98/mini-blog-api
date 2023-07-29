@@ -8,10 +8,16 @@ from .__init__ import __version__ as app_version
 from .config import Settings, get_settings
 from .middleware import configure_middleware
 from .models.base_model import AppInfo
-from .controllers import internal_controller, user_controller, category_controller
+from .controllers import(
+    internal_controller, 
+    user_controller, 
+    category_controller, 
+    card_controller,
+) 
 from .repositories.db import get_db
 from .repositories.user_repository import UserRepository
 from .repositories.category_repository import CategoryRepository
+from .repositories.card_repository import CardRepository
 
 log: structlog.BoundLogger = structlog.get_logger()
 settings: Settings = get_settings()
@@ -50,6 +56,8 @@ def create_app(
     openapi_tags.extend(internal_controller.openapi_tags)
     app.include_router(user_controller.router, prefix=settings.api_prefix)
     app.include_router(category_controller.router, prefix=settings.api_prefix)
+    app.include_router(card_controller.router, prefix=settings.api_prefix)
+
 
     # Additional information for openapi docs
     app.openapi_tags = openapi_tags
@@ -67,3 +75,4 @@ def init_db(db_uri: str = settings.db_uri, db_name: str = settings.db_name):
     db: AsyncIOMotorDatabase = get_db(db_uri, db_name)
     UserRepository.initialize(db=db)
     CategoryRepository.initialize(db=db)
+    CardRepository.initialize(db=db)
