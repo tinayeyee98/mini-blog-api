@@ -9,7 +9,7 @@ from motor.motor_asyncio import (
     AsyncIOMotorCollection,
 )
 from pymongo.errors import ServerSelectionTimeoutError
-from ..models.user_model import UserPayload, User
+from ..models.author_model import AuthorPayload, Author
 
 log = structlog.get_logger()
 

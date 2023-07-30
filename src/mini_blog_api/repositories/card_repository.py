@@ -73,3 +73,13 @@ class CardRepository:
         except ServerSelectionTimeoutError as error:
             log.msg(error)
             raise HTTPException(500, "Failed to connect to MongoDB.")
+        
+    
+    @classmethod
+    async def delete_card(cls, card_name: str):
+        try:
+           await cls.collection.delete_one(dict(name=card_name))
+            
+        except ServerSelectionTimeoutError as error:
+            log.msg(error)
+            raise HTTPException(500, "Failed to connect to MongoDB.")

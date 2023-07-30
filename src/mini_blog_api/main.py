@@ -9,13 +9,13 @@ from .config import Settings, get_settings
 from .middleware import configure_middleware
 from .models.base_model import AppInfo
 from .controllers import(
+    author_controller,
     internal_controller, 
-    user_controller, 
     category_controller, 
     card_controller,
 ) 
 from .repositories.db import get_db
-from .repositories.user_repository import UserRepository
+from .repositories.author_repository import UserRepository
 from .repositories.category_repository import CategoryRepository
 from .repositories.card_repository import CardRepository
 
@@ -54,7 +54,7 @@ def create_app(
     app.include_router(internal_controller.router,
                        prefix=settings.internal_routes_prefix)
     openapi_tags.extend(internal_controller.openapi_tags)
-    app.include_router(user_controller.router, prefix=settings.api_prefix)
+    app.include_router(author_controller.router, prefix=settings.api_prefix)
     app.include_router(category_controller.router, prefix=settings.api_prefix)
     app.include_router(card_controller.router, prefix=settings.api_prefix)
 
