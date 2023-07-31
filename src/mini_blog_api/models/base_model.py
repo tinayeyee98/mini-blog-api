@@ -44,7 +44,7 @@ class AppInfo(BaseModel):
         json_schema_extra = {
             "example": {
                 "app_name": "mini_blog_api",
-                "app_version": "1.0.0",
+                "app_version": "0.1.0",
                 "healthcheck_response": "T0sK",
             }
         }
