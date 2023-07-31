@@ -1,12 +1,13 @@
-from fastapi import Depends, HTTPException, Header
-from fastapi.security import OAuth2PasswordBearer
-
-import jwt
-from jose import JWTError
-import bcrypt
 import secrets
 import string
 from datetime import datetime, timedelta
+
+import bcrypt
+import jwt
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
+
 from ..config import Settings, get_settings
 from ..middleware import TokenAuthBackend, auth_bearer
 from ..services.util import create_http_headers
@@ -17,16 +18,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=settings.generate_apikey_url)
 
 
 async def validate_auth(authorization: str):
-    
     token_header = create_http_headers(Authorization=authorization)
-    
+
     await auth_backend.authenticate(token_header)
-    
+
 
 def generate_pwd():
     characters = string.ascii_letters + string.digits + string.punctuation
-    password = "".join(secrets.choice(characters)
-                       for l in range(settings.password_length))
+    password = "".join(
+        secrets.choice(characters) for _ in range(settings.password_length)
+    )
 
     return hash_password(password)
 
@@ -42,8 +43,7 @@ def generate_access_token(account: dict):
     to_encode = account.copy()
     expire = datetime.utcnow() + timedelta(minutes=settings.token_exp)
     to_encode.update(dict(exp=expire))
-    encode_jwt = jwt.encode(
-        to_encode, settings.jwt_secret, algorithm=settings.jwt_alg)
+    encode_jwt = jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_alg)
 
     return encode_jwt
 

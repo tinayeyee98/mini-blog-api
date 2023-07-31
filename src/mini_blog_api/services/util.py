@@ -1,9 +1,9 @@
 import traceback
-
 from copy import deepcopy
 from datetime import datetime
-from bson import ObjectId
 from uuid import uuid4
+
+from bson import ObjectId
 
 
 def create_http_headers(**kwargs):  # pragma: no cover
@@ -25,8 +25,7 @@ def get_exception_context(et, ev, tb):
         "exception.message": str(ev),
     }
     if tb:
-        exc_context["exception.stacktrace"] = traceback.format_exception(
-            et, ev, tb)
+        exc_context["exception.stacktrace"] = traceback.format_exception(et, ev, tb)
     return exc_context
 
 

@@ -1,7 +1,7 @@
 from functools import lru_cache
 
-from pydantic_settings import BaseSettings
 from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -18,32 +18,16 @@ class Settings(BaseSettings):
         title="Healthcheck Response",
         description="The response content for healthcheck requests",
     )
-    api_prefix: str = Field(
-        default="/api/v1",
-        title="API Prefix"
-    )
-    db_uri: str = Field(
-        default="mongodb://localhost:27017/", title="Database URI"
-    )
-    db_name: str = Field(
-        default="mini_blog_db", title="DB Name"
-    )
-    password_length: int = Field(
-        default=12, title="Random generate password length"
-    )
+    api_prefix: str = Field(default="/api/v1", title="API Prefix")
+    db_uri: str = Field(default="mongodb://localhost:27017/", title="Database URI")
+    db_name: str = Field(default="mini_blog_db", title="DB Name")
+    password_length: int = Field(default=12, title="Random generate password length")
     generate_apikey_url: str = Field(
         default="http://localhost:8000/${api_prefix}/auth/token"
     )
-    jwt_secret: str = Field(
-        default="miniblogtokensecret", title="JWT Token Secret"
-    )
-    jwt_alg: str = Field(
-        default="HS256", title="JWT Algorithm"
-    )
-    token_exp: int = Field(
-        default=300, title="Token Expiration"
-    )
-
+    jwt_secret: str = Field(default="miniblogtokensecret", title="JWT Token Secret")
+    jwt_alg: str = Field(default="HS256", title="JWT Algorithm")
+    token_exp: int = Field(default=300, title="Token Expiration")
 
     class Config:
         env_file = ".env"

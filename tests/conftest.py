@@ -13,6 +13,7 @@ def get_test_settings() -> Settings:
 
     return settings
 
+
 @pytest.fixture
 async def client():
     app: MiniBlogAPI = create_app()

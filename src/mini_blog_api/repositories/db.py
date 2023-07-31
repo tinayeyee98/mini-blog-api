@@ -1,15 +1,10 @@
 from abc import ABC, abstractclassmethod
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import structlog
 from fastapi import HTTPException
-from motor.motor_asyncio import (
-    AsyncIOMotorClient,
-    AsyncIOMotorDatabase,
-    AsyncIOMotorCollection,
-)
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo.errors import ServerSelectionTimeoutError
-from ..models.author_model import AuthorPayload, Author
 
 log = structlog.get_logger()
 
@@ -18,7 +13,8 @@ def get_db(db_uri: str, db_name: str) -> AsyncIOMotorDatabase:
     """Get asyncio database connection."""
     try:
         dbc: AsyncIOMotorClient = AsyncIOMotorClient(
-            db_uri, serverSelectionTimeoutMS=10)
+            db_uri, serverSelectionTimeoutMS=10
+        )
         return dbc.get_database(db_name)
 
     except ServerSelectionTimeoutError as error:
@@ -44,4 +40,3 @@ class MongoMotorCollection(ABC):
         limit: Optional[int] = 0,
     ) -> List[Any]:
         pass
-

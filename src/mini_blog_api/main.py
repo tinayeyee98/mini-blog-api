@@ -1,23 +1,24 @@
+from typing import Any, Dict, List
+
 import structlog
 from fastapi import FastAPI
-from typing import Any, Dict, List
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from .__init__ import __name__ as app_name
 from .__init__ import __version__ as app_version
 from .config import Settings, get_settings
+from .controllers import (
+    author_controller,
+    card_controller,
+    category_controller,
+    internal_controller,
+)
 from .middleware import configure_middleware
 from .models.base_model import AppInfo
-from .controllers import(
-    author_controller,
-    internal_controller, 
-    category_controller, 
-    card_controller,
-) 
-from .repositories.db import get_db
 from .repositories.author_repository import UserRepository
-from .repositories.category_repository import CategoryRepository
 from .repositories.card_repository import CardRepository
+from .repositories.category_repository import CategoryRepository
+from .repositories.db import get_db
 
 log: structlog.BoundLogger = structlog.get_logger()
 settings: Settings = get_settings()
@@ -36,9 +37,7 @@ async def shutdown() -> None:
     log.msg("application is shutting down")
 
 
-def create_app(
-        app_name: str = app_name, app_version: str = app_version
-) -> MiniBlogAPI:
+def create_app(app_name: str = app_name, app_version: str = app_version) -> MiniBlogAPI:
     app = MiniBlogAPI(
         root_path=settings.app_root_path,
         title=app_name,
@@ -51,13 +50,13 @@ def create_app(
 
     # Routes and additional information for openapi
     app.info = AppInfo(app_name=app.title, app_version=app.version)
-    app.include_router(internal_controller.router,
-                       prefix=settings.internal_routes_prefix)
+    app.include_router(
+        internal_controller.router, prefix=settings.internal_routes_prefix
+    )
     openapi_tags.extend(internal_controller.openapi_tags)
     app.include_router(author_controller.router, prefix=settings.api_prefix)
     app.include_router(category_controller.router, prefix=settings.api_prefix)
     app.include_router(card_controller.router, prefix=settings.api_prefix)
-
 
     # Additional information for openapi docs
     app.openapi_tags = openapi_tags

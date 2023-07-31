@@ -1,11 +1,11 @@
+from bson.objectid import ObjectId
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field
-from bson.errors import InvalidId
-from bson.objectid import ObjectId
 
 from ..config import Settings, get_settings
 
 settings: Settings = get_settings()
+
 
 class BaseModel(PydanticBaseModel):
     class Config:
@@ -43,8 +43,8 @@ class AppInfo(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "app_name": "oss_resourcesapi",
-                "app_version": "1.0.0",
+                "app_name": "mini_blog_api",
+                "app_version": "0.1.0",
                 "healthcheck_response": "T0sK",
             }
         }

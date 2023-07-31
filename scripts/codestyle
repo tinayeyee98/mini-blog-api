@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+poetry run isort src tests scripts/db
+poetry run black src tests scripts/db
