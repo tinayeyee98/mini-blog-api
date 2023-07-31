@@ -1,16 +1,10 @@
 from abc import ABC, abstractclassmethod
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import structlog
 from fastapi import HTTPException
-from motor.motor_asyncio import (
-    AsyncIOMotorClient,
-    AsyncIOMotorCollection,
-    AsyncIOMotorDatabase,
-)
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo.errors import ServerSelectionTimeoutError
-
-from ..models.author_model import Author, AuthorPayload
 
 log = structlog.get_logger()
 

@@ -7,12 +7,8 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from .__init__ import __name__ as app_name
 from .__init__ import __version__ as app_version
 from .config import Settings, get_settings
-from .controllers import (
-    author_controller,
-    card_controller,
-    category_controller,
-    internal_controller,
-)
+from .controllers import (author_controller, card_controller,
+                          category_controller, internal_controller)
 from .middleware import configure_middleware
 from .models.base_model import AppInfo
 from .repositories.author_repository import UserRepository

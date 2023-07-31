@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -9,7 +8,6 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCursor
 from pymongo.errors import ServerSelectionTimeoutError
 
 from ..models.card_model import Card, CardPayloadCreate
-from ..services.util import sanitize
 from .author_repository import UserRepository
 
 log = structlog.get_logger()

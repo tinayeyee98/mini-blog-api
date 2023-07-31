@@ -1,6 +1,5 @@
 from datetime import datetime
 from enum import Enum, unique
-from typing import Optional
 
 from bson.objectid import ObjectId
 from pydantic import Field

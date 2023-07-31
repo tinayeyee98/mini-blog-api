@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import bcrypt
 import jwt
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 
@@ -26,7 +26,7 @@ async def validate_auth(authorization: str):
 def generate_pwd():
     characters = string.ascii_letters + string.digits + string.punctuation
     password = "".join(
-        secrets.choice(characters) for l in range(settings.password_length)
+        secrets.choice(characters) for _ in range(settings.password_length)
     )
 
     return hash_password(password)

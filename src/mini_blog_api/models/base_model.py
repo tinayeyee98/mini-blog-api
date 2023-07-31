@@ -1,4 +1,3 @@
-from bson.errors import InvalidId
 from bson.objectid import ObjectId
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field

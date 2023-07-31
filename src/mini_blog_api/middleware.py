@@ -7,20 +7,10 @@ import jwt
 import structlog
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from jwt.exceptions import (
-    ExpiredSignatureError,
-    InvalidAlgorithmError,
-    InvalidSignatureError,
-    InvalidTokenError,
-    MissingRequiredClaimError,
-)
-from starlette.authentication import (
-    AuthCredentials,
-    AuthenticationBackend,
-    AuthenticationError,
-    SimpleUser,
-)
+from jwt.exceptions import (ExpiredSignatureError, InvalidAlgorithmError,
+                            InvalidSignatureError, MissingRequiredClaimError)
+from starlette.authentication import (AuthCredentials, AuthenticationBackend,
+                                      AuthenticationError, SimpleUser)
 from starlette.datastructures import MutableHeaders
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette_context import context
@@ -28,7 +18,6 @@ from starlette_context.middleware import RawContextMiddleware
 from starlette_context.plugins import Plugin
 
 from .config import Settings, get_settings
-from .services import util
 
 log = structlog.get_logger()
 settings: Settings = get_settings()
@@ -153,17 +142,6 @@ class TokenAuthBackend(AuthenticationBackend):
             raise AuthException("Unsupported authorization scheme", 400)
 
         return AuthCredentials(["authenticated"]), SimpleUser(claims.get("sub", ""))
-
-
-def cors_middleware(app: FastAPI) -> None:
-    """Add CORS middleware to HTTP filters."""
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
 
 
 def cors_middleware(app: FastAPI) -> None:
