@@ -12,7 +12,7 @@ from starlette.authentication import (
     AuthenticationError,
     SimpleUser,
 )
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from starlette.datastructures import MutableHeaders
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.middleware.cors import CORSMiddleware
@@ -99,7 +99,7 @@ def auth_bearer(token):
     except jwt.ExpiredSignatureError:
         raise AuthException("Token has expired", 401)
     except jwt.PyJWTError as exc:
-        raise HTTPException(detail=f"{exc}")
+        raise AuthException(detail=f"{exc}")
 
 
 def auth_basic(credentials):
