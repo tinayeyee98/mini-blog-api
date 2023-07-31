@@ -1,5 +1,6 @@
 from typing import Any, Dict
 from datetime import datetime
+from bson.objectid import ObjectId 
 
 import structlog
 import json
@@ -18,9 +19,21 @@ class UserRepository:
         cls.collection = db["author"]
     
     @classmethod
-    async def find_user(cls, username):
+    async def find_user(cls, username: str):
         try:
             user_dict: Dict[str, Any] = await cls.collection.find_one(dict(username=username))
+            
+            if user_dict:
+                return Author.model_validate(user_dict)
+            
+        except ServerSelectionTimeoutError as error:
+            log.msg(error)
+            raise HTTPException(500, "Failed to connect to MongoDB.")
+        
+    @classmethod
+    async def find_user_by_id(cls, user_id: ObjectId):
+        try:
+            user_dict: Dict[str, Any] = await cls.collection.find_one(dict(_id=user_id))
             if user_dict:
                 return Author.model_validate(user_dict)
             
