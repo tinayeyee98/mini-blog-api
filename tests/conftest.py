@@ -3,40 +3,36 @@ from typing import List
 
 import pytest
 from httpx import AsyncClient
-from pymongo import MongoClient
-from pymongo.database import Database
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 # Project Modules
 from mini_blog_api.config import Settings, get_settings
 from mini_blog_api.main import MiniBlogAPI, create_app
+from mini_blog_api.repositories.auth_repository import AuthRepository
+from mini_blog_api.repositories.db import get_db
 
 
 def get_test_settings() -> Settings:
     """Returns settings to use in testing."""
     settings: Settings = Settings()
 
-    settings.db_uri = "mongodb://localhost:27017/test_mini_blog_db"
+    settings.db_uri = "mongodb://localhost:27017"
+    settings.db_name = f"test_{settings.db_name}"
 
     return settings
 
 
 @pytest.fixture
-def mini_blog_db():
+def test_mini_blog_db():
     # get test settings
     settings: Settings = get_test_settings()
-    # db collections for setup and teardown
-    db_collection_names: List[str] = ["tests", "author", "category", "cards"]
 
     # setup stage
-    db_client: MongoClient = MongoClient(settings.db_uri)
-    test_db: Database = db_client.get_database()
-
-    for collection in db_collection_names:
-        test_db[collection].drop()
+    db_client: AsyncIOMotorClient = AsyncIOMotorClient(settings.db_uri)
+    test_db: AsyncIOMotorDatabase = get_db(settings.db_uri, settings.db_name)
+    AuthRepository.initialize(test_db)
 
     yield test_db
-
-    # teardown stage
     db_client.close()
 
 
