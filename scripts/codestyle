@@ -2,5 +2,4 @@
 
 poetry run isort src
 poetry run black src
-# use pflake8 instead of flake8 because pyproject-flake8 is used for monkey-patching
-# poetry run pflake8 src
+poetry run flake8 src

@@ -1,8 +1,9 @@
-from typing import Optional
-from enum import Enum, unique
-from pydantic import Field
-from bson.objectid import ObjectId
 from datetime import datetime
+from enum import Enum, unique
+from typing import Optional
+
+from bson.objectid import ObjectId
+from pydantic import Field
 
 from .base_model import BaseModel
 

@@ -1,7 +1,8 @@
-from typing import Optional
-from pydantic import Field
-from bson.objectid import ObjectId
 from datetime import datetime
+from typing import Optional
+
+from bson.objectid import ObjectId
+from pydantic import Field
 
 from .base_model import BaseModel
 

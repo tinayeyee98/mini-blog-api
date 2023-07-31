@@ -1,8 +1,8 @@
-from typing import Any, Dict, List
+import json
 from datetime import datetime
+from typing import Any, Dict, List
 
 import structlog
-import json
 from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCursor
 from pymongo.errors import ServerSelectionTimeoutError
@@ -21,7 +21,9 @@ class CategoryRepository:
     @classmethod
     async def find_category(cls, name):
         try:
-            category_dict: Dict[str, Any] = await cls.collection.find_one(dict(name=name))
+            category_dict: Dict[str, Any] = await cls.collection.find_one(
+                dict(name=name)
+            )
             if category_dict:
                 return Category.model_validate(category_dict)
 
@@ -37,7 +39,7 @@ class CategoryRepository:
             async for doc in db_cursor:
                 docs.append(Category.model_validate(doc))
             return docs
-        
+
         except ServerSelectionTimeoutError as error:
             log.error(error)
             raise HTTPException(500, "Failed to connect to MongoDB.")

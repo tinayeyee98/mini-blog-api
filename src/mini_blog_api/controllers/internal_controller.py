@@ -10,20 +10,18 @@ log = structlog.get_logger()
 
 openapi_tags = [
     {
-        "name" : "internal",
+        "name": "internal",
         "description": "Endpoints for internal operations such as active healthchecking from control-plane.",
     }
 ]
 
-router = APIRouter(
-    tags=["internal"], responses=default_responses
-)
+router = APIRouter(tags=["internal"], responses=default_responses)
+
 
 @router.get("/app_info", response_model=AppInfo)
 async def app_info(request: Request, settings: Settings = Depends(get_settings)):
     log.msg("app info retrieved", **context.data)
     return request.app.info
-
 
 
 @router.get(
