@@ -7,10 +7,18 @@ import jwt
 import structlog
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from jwt.exceptions import (ExpiredSignatureError, InvalidAlgorithmError,
-                            InvalidSignatureError, MissingRequiredClaimError)
-from starlette.authentication import (AuthCredentials, AuthenticationBackend,
-                                      AuthenticationError, SimpleUser)
+from jwt.exceptions import (
+    ExpiredSignatureError,
+    InvalidAlgorithmError,
+    InvalidSignatureError,
+    MissingRequiredClaimError,
+)
+from starlette.authentication import (
+    AuthCredentials,
+    AuthenticationBackend,
+    AuthenticationError,
+    SimpleUser,
+)
 from starlette.datastructures import MutableHeaders
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette_context import context

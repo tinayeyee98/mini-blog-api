@@ -12,6 +12,7 @@ from ..services.auth import validate_auth
 log = structlog.get_logger()
 settings: Settings = get_settings()
 
+
 router = APIRouter(
     tags=["Card's Category Endpoints"],
     responses=default_responses,

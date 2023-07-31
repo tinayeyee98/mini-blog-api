@@ -14,6 +14,7 @@ from ..services.auth import get_current_user, validate_auth
 log = structlog.get_logger()
 settings: Settings = get_settings()
 
+
 router = APIRouter(
     tags=["Cards Endpoints"],
     responses=default_responses,

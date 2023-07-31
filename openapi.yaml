@@ -1,0 +1,601 @@
+components:
+  schemas:
+    AppInfo:
+      description: Data model for application information.
+      example:
+        app_name: oss_resourcesapi
+        app_version: 1.0.0
+        healthcheck_response: T0sK
+      properties:
+        app_name:
+          title: App Name
+          type: string
+        app_version:
+          title: App Version
+          type: string
+        healthcheck_response:
+          default: T0sK
+          title: Response data in base64 format for healthcheck request
+          type: string
+      required:
+      - app_name
+      - app_version
+      title: AppInfo
+      type: object
+    AuthorPayload:
+      properties:
+        username:
+          title: Author Name
+          type: string
+      required:
+      - username
+      title: AuthorPayload
+      type: object
+    Body_create_access_token_for_user_api_v1_auth_token_post:
+      properties:
+        client_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Secret
+        grant_type:
+          anyOf:
+          - pattern: password
+            type: string
+          - type: 'null'
+          title: Grant Type
+        password:
+          title: Password
+          type: string
+        scope:
+          default: ''
+          title: Scope
+          type: string
+        username:
+          title: Username
+          type: string
+      required:
+      - username
+      - password
+      title: Body_create_access_token_for_user_api_v1_auth_token_post
+      type: object
+    CardPayload:
+      properties:
+        author:
+          title: Author Name
+          type: string
+        category:
+          title: Card's Category
+          type: string
+        content:
+          title: Content of the Card
+          type: string
+        name:
+          title: Card Name
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/CardStatusLabel'
+          title: Card Status
+      required:
+      - name
+      - status
+      - category
+      - author
+      - content
+      title: CardPayload
+      type: object
+    CardStatusLabel:
+      enum:
+      - draft
+      - published
+      - archived
+      - pending
+      - featured
+      - deleted
+      title: CardStatusLabel
+      type: string
+    CategoryPayload:
+      properties:
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        name:
+          title: Category Name
+          type: string
+      required:
+      - name
+      - description
+      title: CategoryPayload
+      type: object
+    ErrorMessage:
+      properties:
+        detail:
+          description: Error information
+          title: Detail
+          type: string
+      required:
+      - detail
+      title: ErrorMessage
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+  securitySchemes:
+    OAuth2PasswordBearer:
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: http://localhost:8000/api/v1/auth/token
+      type: oauth2
+info:
+  title: mini_blog_api
+  version: 0.1.0
+openapi: 3.1.0
+paths:
+  /api/v1/auth/register:
+    post:
+      operationId: register_user_api_v1_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorPayload'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Register User
+      tags:
+      - Author Auth Endpoints
+  /api/v1/auth/token:
+    post:
+      operationId: create_access_token_for_user_api_v1_auth_token_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_create_access_token_for_user_api_v1_auth_token_post'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Create Access Token For User
+      tags:
+      - Author Auth Endpoints
+  /api/v1/cards:
+    get:
+      operationId: get_card_list_api_v1_cards_get
+      parameters:
+      - in: query
+        name: name
+        required: false
+        schema:
+          title: Name
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Get Card List
+      tags:
+      - Cards Endpoints
+    post:
+      operationId: create_card_api_v1_cards_post
+      parameters:
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardPayload'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Create Card
+      tags:
+      - Cards Endpoints
+  /api/v1/cards/category:
+    get:
+      operationId: get_category_list_api_v1_cards_category_get
+      parameters:
+      - in: query
+        name: name
+        required: false
+        schema:
+          title: Name
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Get Category List
+      tags:
+      - Card's Category Endpoints
+    post:
+      operationId: create_category_api_v1_cards_category_post
+      parameters:
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryPayload'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Create Category
+      tags:
+      - Card's Category Endpoints
+  /api/v1/cards/{card_name}:
+    delete:
+      operationId: delete_card_by_name_api_v1_cards__card_name__delete
+      parameters:
+      - in: path
+        name: card_name
+        required: true
+        schema:
+          title: Card Name
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Delete Card By Name
+      tags:
+      - Cards Endpoints
+    patch:
+      operationId: update_card_data_api_v1_cards__card_name__patch
+      parameters:
+      - in: path
+        name: card_name
+        required: true
+        schema:
+          title: Card Name
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Update Card Data
+      tags:
+      - Cards Endpoints
+  /internal/app_info:
+    get:
+      operationId: app_info_internal_app_info_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppInfo'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: App Info
+      tags:
+      - internal
+  /internal/healthcheck:
+    get:
+      operationId: healthcheck_internal_healthcheck_get
+      responses:
+        '200':
+          content:
+            text/plain:
+              example: T0sK
+              schema:
+                type: string
+          description: Successful Response
+        '404':
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '503':
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Healthcheck
+      tags:
+      - internal
+  /internal/testing:
+    get:
+      operationId: testing_internal_testing_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Testing
+      tags:
+      - internal
+tags:
+- description: Endpoints for internal operations such as active healthchecking from
+    control-plane.
+  name: internal

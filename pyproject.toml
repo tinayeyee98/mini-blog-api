@@ -24,6 +24,7 @@ python-multipart = "^0.0.6"
 pyjwt = "^2.8.0"
 authlib = "^1.2.1"
 python-jose = "^3.3.0"
+pre-commit = "^3.3.3"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -33,7 +34,45 @@ pytest-asyncio = "^0.21.1"
 autopep8 = "^2.0.2"
 black = "^23.7.0"
 isort = "^5.12.0"
-flake8 = "<6.1.0"
+devtools = {extras = ["pygments"], version = "^0.8.0"}
+
+[tool.pytest.ini_options]
+minversion = "6.2"
+addopts = "--cov --cov-report term-missing"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py38"]
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+
+[tool.flake8]
+max-line-length = 88
+max-complexity = 18
+ignore = "E203, E266, E501, E503"
+select = "B, C, E, F, W, T4"
 
 [build-system]
 requires = ["poetry-core"]
