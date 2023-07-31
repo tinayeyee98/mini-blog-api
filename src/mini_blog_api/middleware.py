@@ -1,27 +1,19 @@
 import base64
 import binascii
-import sys
 import jwt
 import structlog
 import httpx
 
 from uuid import uuid4
-from authlib.jose.errors import (
-    BadSignatureError,
-    ExpiredTokenError,
-    JoseError,
-    MissingClaimError,
-    UnsupportedAlgorithmError,
-)
+
 from starlette.authentication import (
     AuthCredentials,
     AuthenticationBackend,
     AuthenticationError,
     SimpleUser,
 )
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from starlette.datastructures import MutableHeaders
-from starlette.middleware import Middleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
@@ -98,16 +90,16 @@ def auth_bearer(token):
             token, settings.jwt_secret, algorithms=[settings.jwt_alg]
         )
         return claims
-    except UnsupportedAlgorithmError:
+    except jwt.InvalidAlgorithmError:
         raise AuthException("Unsupported algorithm in token", 403)
-    except BadSignatureError:
+    except jwt.exceptions.InvalidSignatureError:
         raise AuthException("Invalid token signature", 403)
-    except MissingClaimError as exc:
+    except jwt.MissingRequiredClaimError as exc:
         raise AuthException(f"Essential claims missing. {exc}", 403)
-    except ExpiredTokenError:
+    except jwt.ExpiredSignatureError:
         raise AuthException("Token has expired", 401)
-    except JoseError as exc:
-        raise AuthException(f"{exc}", 401)
+    except jwt.PyJWTError as exc:
+        raise HTTPException(detail=f"{exc}")
 
 
 def auth_basic(credentials):
@@ -134,11 +126,10 @@ def auth_basic(credentials):
     apikey = result.json()
 
     secret = apikey.get("client_secret", None)
-    scope = apikey.get("scope", "")
     if secret != client_secret:
         raise AuthException("Invalid API Key", 403)
 
-    claims = dict(sub=client_id, scope=scope)
+    claims = dict(sub=client_id)
     return claims
 
 
@@ -158,7 +149,7 @@ class TokenAuthBackend(AuthenticationBackend):
         else:
             raise AuthException("Unsupported authorization scheme", 400)
 
-        return AuthCredentials(claims["scope"].split()), SimpleUser(claims["sub"])
+        return AuthCredentials(["authenticated"]), SimpleUser(claims.get("sub", ""))
 
 
 def cors_middleware(app: FastAPI) -> None:
