@@ -31,7 +31,7 @@ class CardPayloadCreate(BaseModel):
     category: ObjectId = Field(title="Card's Category")
     author: ObjectId = Field(title="Author Name")
     content: str = Field(title="Content of the Card")
-    
+
 
 class Card(BaseModel):
     id: ObjectId = Field(title="Card Object ID", alias="_id")
