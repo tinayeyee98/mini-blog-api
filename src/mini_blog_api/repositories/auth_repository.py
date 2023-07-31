@@ -18,7 +18,7 @@ log = structlog.get_logger()
 class AuthRepository:
     @classmethod
     def initialize(cls, db: AsyncIOMotorClient) -> None:
-        cls.collection = db["author"]
+        cls.collection = db["auth"]
 
     @classmethod
     async def find_user(cls, username: str):
