@@ -1,6 +1,33 @@
+import traceback
+
 from copy import deepcopy
 from datetime import datetime
 from bson import ObjectId
+from uuid import uuid4
+
+
+def create_http_headers(**kwargs):  # pragma: no cover
+    """Create HTTP headers for outbound requests."""
+    if "x-request-id" not in kwargs.keys():
+        kwargs["x-request-id"] = uuid4().hex
+
+    headers = {
+        "content-type": "application/json",
+    }
+    headers.update(kwargs)
+    return headers
+
+
+def get_exception_context(et, ev, tb):
+    exc_context = {
+        "error": True,
+        "exception.type": str(et.__name__),
+        "exception.message": str(ev),
+    }
+    if tb:
+        exc_context["exception.stacktrace"] = traceback.format_exception(
+            et, ev, tb)
+    return exc_context
 
 
 def dt2str(dt):

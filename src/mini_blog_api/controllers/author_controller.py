@@ -1,6 +1,6 @@
 import structlog
 import jwt
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
 from ..models.base_model import default_responses
@@ -31,7 +31,7 @@ async def register_user(user: AuthorPayload, user_repo: UserRepository = Depends
 
 
 @router.post("/auth/token")
-async def access_token_for_user(form_data: OAuth2PasswordRequestForm = Depends()):
+async def create_access_token_for_user(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await UserRepository.validate_credentials(username=form_data.username, password=form_data.password)
 
     if not user:

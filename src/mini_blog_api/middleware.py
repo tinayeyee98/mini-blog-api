@@ -1,18 +1,39 @@
+import base64
+import binascii
+import sys
+import jwt
+import structlog
+import httpx
+
 from uuid import uuid4
-
-from fastapi import FastAPI, Request, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security.utils import get_authorization_scheme_param
-from fastapi.responses import JSONResponse
-from jose import jwt, JWTError, ExpiredSignatureError
-
+from authlib.jose.errors import (
+    BadSignatureError,
+    ExpiredTokenError,
+    JoseError,
+    MissingClaimError,
+    UnsupportedAlgorithmError,
+)
+from starlette.authentication import (
+    AuthCredentials,
+    AuthenticationBackend,
+    AuthenticationError,
+    SimpleUser,
+)
+from fastapi import FastAPI, Request
 from starlette.datastructures import MutableHeaders
+from starlette.middleware import Middleware
+from starlette.middleware.authentication import AuthenticationMiddleware
+from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 from starlette_context import context
-from starlette_context.middleware import RawContextMiddleware
 from starlette_context.plugins import Plugin
+from starlette_context.middleware import RawContextMiddleware
 
+from .services import util
 from .config import Settings, get_settings
 
+log = structlog.get_logger()
 settings: Settings = get_settings()
 
 
@@ -60,33 +81,95 @@ class UserAgent(Plugin):
     key = "user-agent"
 
 
-class TokenAuthBackend:
-    async def authenticate(self, request: Request):
-        authorization = request.headers.get("Authorization")
+class AuthException(AuthenticationError):
+    def __init__(self, message, status_code=403):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(self.message)
 
-        if authorization is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-        try:
-            schema, token = get_authorization_scheme_param(
-                authorization.credentials)
+def on_auth_error(request: Request, exc: AuthException):
+    return JSONResponse({"details": exc.message}, status_code=exc.status_code)
 
-            if schema.lower() != "bearer":
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN, detail="Invalid authentication schema")
 
-            claims = jwt.decode(token, settings.jwt_secret,
-                                algorithms=settings.jwt_alg)
+def auth_bearer(token):
+    try:
+        claims = jwt.decode(
+            token, settings.jwt_secret, algorithms=[settings.jwt_alg]
+        )
+        return claims
+    except UnsupportedAlgorithmError:
+        raise AuthException("Unsupported algorithm in token", 403)
+    except BadSignatureError:
+        raise AuthException("Invalid token signature", 403)
+    except MissingClaimError as exc:
+        raise AuthException(f"Essential claims missing. {exc}", 403)
+    except ExpiredTokenError:
+        raise AuthException("Token has expired", 401)
+    except JoseError as exc:
+        raise AuthException(f"{exc}", 401)
 
-            return claims
 
-        except ExpiredSignatureError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
-        except JWTError:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token")
+def auth_basic(credentials):
+    try:
+        decoded = base64.b64decode(credentials).decode("ascii")
+    except (ValueError, UnicodeDecodeError, binascii.Error):
+        raise AuthenticationError("Invalid auth credentials")
+
+    client_id, _, client_secret = decoded.partition(":")
+
+    headers = {
+        "content-type": "application/json",
+    }
+
+    try:
+        with httpx.Client(headers=headers) as httpclient:
+            result = httpclient.get(settings.generate_apikey_url + f"?username={client_id}")
+            result.raise_for_status()
+    except (httpx.RequestError, httpx.ConnectError):
+        raise AuthException("Authorization verification is temporarily unavailable", 503)
+    except httpx.HTTPStatusError:
+        raise AuthException("Authorization failed", 403)
+
+    apikey = result.json()
+
+    secret = apikey.get("client_secret", None)
+    scope = apikey.get("scope", "")
+    if secret != client_secret:
+        raise AuthException("Invalid API Key", 403)
+
+    claims = dict(sub=client_id, scope=scope)
+    return claims
+
+
+class TokenAuthBackend(AuthenticationBackend):
+    async def authenticate(self, request):
+        if "Authorization" not in request.headers:
+            return
+
+        auth_header = request.headers["Authorization"]
+        scheme, auth = auth_header.split()
+        scheme = scheme.lower()
+
+        if scheme == "bearer":
+            claims = auth_bearer(auth)
+        elif scheme == "basic":
+            claims = auth_basic(auth)
+        else:
+            raise AuthException("Unsupported authorization scheme", 400)
+
+        return AuthCredentials(claims["scope"].split()), SimpleUser(claims["sub"])
+
+
+def cors_middleware(app: FastAPI) -> None:
+    """Add CORS middleware to HTTP filters."""
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 def cors_middleware(app: FastAPI) -> None:
@@ -114,13 +197,15 @@ def context_middleware(app: FastAPI) -> None:
 
 
 def auth_middleware(app: FastAPI) -> None:
-    """Add Auth middleware to HTTP filters."""
     app.add_middleware(
-        TokenAuthBackend())
+        AuthenticationMiddleware,
+        backend=TokenAuthBackend(),
+        on_error=on_auth_error
+    )
 
 
 def configure_middleware(app: FastAPI) -> None:
     """Add available HTTP middleware to HTTP filters."""
     cors_middleware(app)
     context_middleware(app)
-    # auth_middleware(app)
+    auth_middleware(app)
