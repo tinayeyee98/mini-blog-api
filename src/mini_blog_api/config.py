@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     password_length: int = Field(
         default=12, title="Random generate password length"
     )
+    generate_apikey_url: str = Field(
+        default="http://localhost:8000/${api_prefix}/auth/token"
+    )
     jwt_secret: str = Field(
         default="miniblogtokensecret", title="JWT Token Secret"
     )
