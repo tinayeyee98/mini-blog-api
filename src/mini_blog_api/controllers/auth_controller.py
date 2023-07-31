@@ -26,9 +26,7 @@ async def register_user(user: AuthPayload, user_repo: AuthRepository = Depends()
 
     user_doc = await user_repo.create_user(user)
 
-    raise HTTPException(
-        status_code=201, detail="Auth account is created.", headers=user_doc
-    )
+    return user_doc
 
 
 @router.post("/auth/login")
