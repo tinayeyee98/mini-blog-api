@@ -8,12 +8,12 @@ import secrets
 import string
 from datetime import datetime, timedelta
 from ..config import Settings, get_settings
-from ..middleware import TokenAuthBackend
+from ..middleware import TokenAuthBackend, auth_bearer
 from ..services.util import create_http_headers
 
 settings: Settings = get_settings()
 auth_backend = TokenAuthBackend()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=settings.generate_apikey_url)
 
 
 async def validate_auth(authorization: str):
@@ -54,9 +54,8 @@ def verify_password(plain_pwd: str, hashed_pwd: str) -> bool:
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
     try:
-        payload = jwt.decode(token, settings.jwt_secret,
-                             algorithm=settings.jwt_alg)
-        username = payload.get("sub")
+        decoded_token = auth_bearer(token)
+        username = decoded_token.get("sub")
 
         if username is None:
             raise HTTPException(status_code=401, detail="Invalid token.")
