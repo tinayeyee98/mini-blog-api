@@ -9,6 +9,7 @@ settings: Settings = get_settings()
 
 class BaseModel(PydanticBaseModel):
     class Config:
+        use_enum_values = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
 

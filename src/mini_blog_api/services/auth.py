@@ -1,34 +1,66 @@
+from fastapi import Depends, HTTPException, Header
+from fastapi.security import OAuth2PasswordBearer
+
 import jwt
+from jose import JWTError
 import bcrypt
 import secrets
 import string
 from datetime import datetime, timedelta
 from ..config import Settings, get_settings
+from ..middleware import TokenAuthBackend, auth_bearer
+from ..services.util import create_http_headers
 
 settings: Settings = get_settings()
+auth_backend = TokenAuthBackend()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=settings.generate_apikey_url)
 
+
+async def validate_auth(authorization: str):
+    
+    token_header = create_http_headers(Authorization=authorization)
+    
+    await auth_backend.authenticate(token_header)
+    
 
 def generate_pwd():
     characters = string.ascii_letters + string.digits + string.punctuation
     password = "".join(secrets.choice(characters)
                        for l in range(settings.password_length))
+
     return hash_password(password)
 
 
 def hash_password(plaintext: str):
     salt = bcrypt.gensalt()
     hashed_pwd = bcrypt.hashpw(plaintext.encode("utf-8"), salt)
+
     return hashed_pwd.decode("utf-8")
 
 
-def create_access_token(account: dict):
+def generate_access_token(account: dict):
     to_encode = account.copy()
     expire = datetime.utcnow() + timedelta(minutes=settings.token_exp)
     to_encode.update(dict(exp=expire))
     encode_jwt = jwt.encode(
         to_encode, settings.jwt_secret, algorithm=settings.jwt_alg)
+
     return encode_jwt
 
 
 def verify_password(plain_pwd: str, hashed_pwd: str) -> bool:
     return plain_pwd == hashed_pwd
+
+
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
+    try:
+        decoded_token = auth_bearer(token)
+        username = decoded_token.get("sub")
+
+        if username is None:
+            raise HTTPException(status_code=401, detail="Invalid token.")
+
+        return username
+
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token.")

@@ -9,7 +9,7 @@ from motor.motor_asyncio import (
     AsyncIOMotorCollection,
 )
 from pymongo.errors import ServerSelectionTimeoutError
-from ..models.user_model import UserPayload, User
+from ..models.author_model import AuthorPayload, Author
 
 log = structlog.get_logger()
 
@@ -34,3 +34,14 @@ class MongoMotorCollection(ABC):
     @abstractclassmethod
     async def find_one(cls, *args: Any, **kwargs: Any) -> Any:
         pass
+
+    @abstractclassmethod
+    async def find(
+        cls,
+        query_filter: Optional[Dict[str, Any]] = {},
+        projection: Optional[Dict[str, Any]] = None,
+        skip: Optional[int] = 0,
+        limit: Optional[int] = 0,
+    ) -> List[Any]:
+        pass
+
