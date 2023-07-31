@@ -3,7 +3,7 @@ components:
     AppInfo:
       description: Data model for application information.
       example:
-        app_name: oss_resourcesapi
+        app_name: mini_blog_api
         app_version: 1.0.0
         healthcheck_response: T0sK
       properties:

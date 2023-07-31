@@ -43,7 +43,7 @@ class AppInfo(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "app_name": "oss_resourcesapi",
+                "app_name": "mini_blog_api",
                 "app_version": "1.0.0",
                 "healthcheck_response": "T0sK",
             }
