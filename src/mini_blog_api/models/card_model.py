@@ -21,7 +21,7 @@ class CardPayload(BaseModel):
     name: str = Field(title="Card Name")
     status: CardStatusLabel = Field(title="Card Status")
     category: str = Field(title="Card's Category")
-    author: str = Field(title="Author Name")
+    author: str = Field(title="Auth Name")
     content: str = Field(title="Content of the Card")
 
 
@@ -29,7 +29,7 @@ class CardPayloadCreate(BaseModel):
     name: str = Field(title="Card Name")
     status: CardStatusLabel = Field(title="Card Status")
     category: ObjectId = Field(title="Card's Category")
-    author: ObjectId = Field(title="Author Name")
+    author: ObjectId = Field(title="Auth Name")
     content: str = Field(title="Content of the Card")
 
 
@@ -37,7 +37,7 @@ class Card(BaseModel):
     id: ObjectId = Field(title="Card Object ID", alias="_id")
     status: CardStatusLabel = Field(title="Card Status")
     category: ObjectId = Field(title="Card's Category Object ID")
-    author: ObjectId = Field(title="Author Object ID")
+    author: ObjectId = Field(title="Auth Object ID")
     content: str = Field(title="Content of the Card")
     created_at: datetime = Field(title="Created Timestamp")
     updated_at: datetime = Field(title="Updated Timestamp")

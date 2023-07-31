@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from ..config import Settings, get_settings
 from ..models.base_model import default_responses
 from ..models.card_model import Card, CardPayload
-from ..repositories.author_repository import UserRepository
+from ..repositories.auth_repository import AuthRepository
 from ..repositories.card_repository import CardRepository
 from ..repositories.category_repository import CategoryRepository
 from ..services.auth import get_current_user, validate_auth
@@ -38,10 +38,10 @@ async def create_card(
         raise HTTPException(status_code=403, detail="card already exists.")
 
     category = await CategoryRepository.find_category(card.category)
-    author = await UserRepository.find_user(card.author)
+    author = await AuthRepository.find_user(card.author)
 
     if not author:
-        raise HTTPException(status_code=404, detail="Author not found.")
+        raise HTTPException(status_code=404, detail="Auth not found.")
     elif not category:
         raise HTTPException(status_code=404, detail="Category not found.")
 

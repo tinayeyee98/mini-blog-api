@@ -8,7 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCursor
 from pymongo.errors import ServerSelectionTimeoutError
 
 from ..models.card_model import Card, CardPayloadCreate
-from .author_repository import UserRepository
+from .auth_repository import AuthRepository
 
 log = structlog.get_logger()
 
@@ -73,7 +73,7 @@ class CardRepository:
             if not card:
                 return None
 
-            author_detail = await UserRepository.find_user_by_id(card.author)
+            author_detail = await AuthRepository.find_user_by_id(card.author)
 
             if author_detail.username != author:
                 raise HTTPException(
@@ -96,7 +96,7 @@ class CardRepository:
             if not card:
                 return None
 
-            author_detail = await UserRepository.find_user_by_id(card.author)
+            author_detail = await AuthRepository.find_user_by_id(card.author)
 
             if author_detail.username != author:
                 raise HTTPException(
