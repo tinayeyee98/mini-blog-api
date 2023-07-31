@@ -5,19 +5,24 @@ import structlog
 import httpx
 
 from uuid import uuid4
-
+from jwt.exceptions import (
+    InvalidAlgorithmError, 
+    InvalidSignatureError, 
+    MissingRequiredClaimError, 
+    ExpiredSignatureError, 
+    InvalidTokenError
+)
 from starlette.authentication import (
     AuthCredentials,
     AuthenticationBackend,
     AuthenticationError,
     SimpleUser,
 )
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from starlette.datastructures import MutableHeaders
 from starlette.middleware.authentication import AuthenticationMiddleware
-from starlette.middleware.cors import CORSMiddleware
-from starlette.requests import Request
-from starlette.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette_context import context
 from starlette_context.plugins import Plugin
 from starlette_context.middleware import RawContextMiddleware
@@ -80,26 +85,22 @@ class AuthException(AuthenticationError):
         super().__init__(self.message)
 
 
-def on_auth_error(request: Request, exc: AuthException):
-    return JSONResponse({"details": exc.message}, status_code=exc.status_code)
-
-
 def auth_bearer(token):
     try:
         claims = jwt.decode(
             token, settings.jwt_secret, algorithms=[settings.jwt_alg]
         )
         return claims
-    except jwt.InvalidAlgorithmError:
-        raise AuthException("Unsupported algorithm in token", 403)
-    except jwt.exceptions.InvalidSignatureError:
-        raise AuthException("Invalid token signature", 403)
-    except jwt.MissingRequiredClaimError as exc:
-        raise AuthException(f"Essential claims missing. {exc}", 403)
-    except jwt.ExpiredSignatureError:
-        raise AuthException("Token has expired", 401)
+    except InvalidAlgorithmError:
+        raise HTTPException(status_code=403, detail="Unsupported algorithm in token")
+    except InvalidSignatureError:
+        raise HTTPException(status_code=403, detail="Invalid signature error")
+    except MissingRequiredClaimError as exc:
+        raise HTTPException(status_code=403, detail=f"Essential claims missing. {exc}")
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.PyJWTError as exc:
-        raise AuthException(detail=f"{exc}")
+        raise HTTPException(status_code=401, detail=f"{exc}")
 
 
 def auth_basic(credentials):
@@ -134,22 +135,23 @@ def auth_basic(credentials):
 
 
 class TokenAuthBackend(AuthenticationBackend):
-    async def authenticate(self, request):
-        if "Authorization" not in request.headers:
+    async def authenticate(self, request: Request):
+            
+       if not request.get("Authorization"):
             return
+       
+       auth_header = request.get("Authorization")
+       scheme, auth = auth_header.split()
+       scheme = scheme.lower()
 
-        auth_header = request.headers["Authorization"]
-        scheme, auth = auth_header.split()
-        scheme = scheme.lower()
+       if scheme == "bearer":
+           claims = auth_bearer(auth)
+       elif scheme == "basic":
+           claims = auth_basic(auth)
+       else:
+           raise AuthException("Unsupported authorization scheme", 400)
 
-        if scheme == "bearer":
-            claims = auth_bearer(auth)
-        elif scheme == "basic":
-            claims = auth_basic(auth)
-        else:
-            raise AuthException("Unsupported authorization scheme", 400)
-
-        return AuthCredentials(["authenticated"]), SimpleUser(claims.get("sub", ""))
+       return AuthCredentials(["authenticated"]), SimpleUser(claims.get("sub", ""))
 
 
 def cors_middleware(app: FastAPI) -> None:
@@ -190,8 +192,7 @@ def context_middleware(app: FastAPI) -> None:
 def auth_middleware(app: FastAPI) -> None:
     app.add_middleware(
         AuthenticationMiddleware,
-        backend=TokenAuthBackend(),
-        on_error=on_auth_error
+        backend=TokenAuthBackend()
     )
 
 

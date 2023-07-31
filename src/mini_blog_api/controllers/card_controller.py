@@ -8,7 +8,7 @@ from ..models.card_model import Card, CardPayload
 from ..repositories.card_repository import CardRepository
 from ..repositories.category_repository import CategoryRepository
 from ..repositories.author_repository import UserRepository
-from ..services.util import sanitize
+from ..services.util import create_http_headers
 from ..services.auth import get_current_user
 from ..config import Settings, get_settings
 

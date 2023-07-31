@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Header
 from fastapi.security import OAuth2PasswordBearer
 
 import jwt
@@ -8,10 +8,20 @@ import secrets
 import string
 from datetime import datetime, timedelta
 from ..config import Settings, get_settings
+from ..middleware import TokenAuthBackend
+from ..services.util import create_http_headers
 
 settings: Settings = get_settings()
+auth_backend = TokenAuthBackend()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+
+async def validate_auth(authorization: str):
+    
+    token_header = create_http_headers(Authorization=authorization)
+    
+    await auth_backend.authenticate(token_header)
+    
 
 def generate_pwd():
     characters = string.ascii_letters + string.digits + string.punctuation
