@@ -37,7 +37,7 @@ async def create_card(
     if existing_card:
         raise HTTPException(status_code=403, detail="card already exists.")
 
-    category = await CategoryRepository.find_category(card.category)
+    category = await CategoryRepository.find_one(card.category)
     author = await AuthRepository.find_user(card.author)
 
     if not author:

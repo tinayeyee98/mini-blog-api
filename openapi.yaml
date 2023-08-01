@@ -337,11 +337,39 @@ paths:
       operationId: get_category_list_api_v1_cards_category_get
       parameters:
       - in: query
+        name: skip
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: 0
+          title: Skip
+      - in: query
+        name: limit
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: 100
+          title: Limit
+      - in: query
+        name: id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+      - in: query
         name: name
         required: false
         schema:
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Name
-          type: string
       - in: header
         name: authorization
         required: false
@@ -419,6 +447,52 @@ paths:
           description: Service Unavailable
           title: Service Temporarily Unavailable
       summary: Create Category
+      tags:
+      - Card's Category Endpoints
+  /api/v1/cards/category/{category_id}:
+    get:
+      operationId: get_site_by_site_code_api_v1_cards_category__category_id__get
+      parameters:
+      - in: path
+        name: category_id
+        required: true
+        schema:
+          title: Category Id
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mini_blog_api__models__category_model__CategoryInput__1'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Get Site By Site Code
       tags:
       - Card's Category Endpoints
   /api/v1/cards/{card_name}:

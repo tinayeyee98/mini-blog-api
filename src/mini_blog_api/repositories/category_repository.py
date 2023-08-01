@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import structlog
 from fastapi import HTTPException
@@ -19,11 +19,9 @@ class CategoryRepository:
         cls.collection = db["category"]
 
     @classmethod
-    async def find_category(cls, name):
+    async def find_one(cls, **kwargs) -> Optional[Category]:
         try:
-            category_dict: Dict[str, Any] = await cls.collection.find_one(
-                dict(name=name)
-            )
+            category_dict: Dict[str, Any] = await cls.collection.find_one(kwargs)
             if category_dict:
                 return Category.model_validate(category_dict)
 
@@ -32,10 +30,18 @@ class CategoryRepository:
             raise HTTPException(500, "Failed to connect to MongoDB.")
 
     @classmethod
-    async def find_category_list(cls, query_filter: Dict[str, Any]) -> List[Category]:
+    async def find(
+        cls,
+        query_filter: Dict[str, Any],
+        skip: int,
+        limit: int,
+        projection: Optional[Dict[str, Any]] = None,
+    ):
         try:
             docs: List[Category] = []
-            db_cursor: AsyncIOMotorCursor = cls.collection.find(query_filter)
+            db_cursor: AsyncIOMotorCursor = cls.collection.find(
+                query_filter, projection, skip, limit
+            )
             async for doc in db_cursor:
                 docs.append(Category.model_validate(doc))
             return docs
@@ -45,7 +51,7 @@ class CategoryRepository:
             raise HTTPException(500, "Failed to connect to MongoDB.")
 
     @classmethod
-    async def insert_category(cls, doc: CategoryPayload):
+    async def insert_one(cls, doc: CategoryPayload):
         try:
             payload = doc.model_dump_json()
             category_data = json.loads(payload)
