@@ -33,7 +33,7 @@ identify==2.5.26
 idna==3.4
 iniconfig==2.0.0
 isort==5.12.0
--e git+ssh://git@github.com/tinayeyee98/mini-blog-api.git@aa8e51523a304d85bc3566fc32c6c343d9e51928#egg=mini_blog_api
+-e git+ssh://git@github.com/tinayeyee98/mini-blog-api.git@0a8fca10386fffb6b4dea88457b5434e8f7ae0c7#egg=mini_blog_api
 mongomock==4.1.2
 motor==3.2.0
 multidict==6.0.4

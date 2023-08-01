@@ -4,23 +4,10 @@ from datetime import datetime, timedelta
 
 import bcrypt
 import jwt
-from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
 
 from ..config import Settings, get_settings
-from ..middleware import TokenAuthBackend, auth_bearer
-from ..services.util import create_http_headers
 
 settings: Settings = get_settings()
-auth_backend = TokenAuthBackend()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=settings.generate_apikey_url)
-
-
-async def validate_auth(authorization: str):
-    token_header = create_http_headers(Authorization=authorization)
-
-    await auth_backend.authenticate(token_header)
 
 
 def generate_pwd():
@@ -50,17 +37,3 @@ def generate_access_token(account: dict):
 
 def verify_password(plain_pwd: str, hashed_pwd: str) -> bool:
     return plain_pwd == hashed_pwd
-
-
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
-    try:
-        decoded_token = auth_bearer(token)
-        username = decoded_token.get("sub")
-
-        if username is None:
-            raise HTTPException(status_code=401, detail="Invalid token.")
-
-        return username
-
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token.")

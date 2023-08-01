@@ -7,11 +7,11 @@ from pydantic import Field
 from .base_model import BaseModel
 
 
-class AuthPayload(BaseModel):
+class UserAuthPayload(BaseModel):
     username: str = Field(title="User Name")
 
 
-class Auth(BaseModel):
+class UserAuth(BaseModel):
     id: Optional[ObjectId] = Field(title="User Object ID", alias="_id")
     username: str = Field(title="User Name")
     password: str = Field(title="Password")
