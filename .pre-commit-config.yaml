@@ -19,13 +19,13 @@ repos:
       types: [python]
       pass_filenames: false
 
-    # - id: test
-    #   name: test
-    #   stages: [commit]
-    #   entry: poetry run pytest
-    #   language: system
-    #   types: [python]
-    #   pass_filenames: false
+    - id: test
+      name: test
+      stages: [commit]
+      entry: poetry run pytest
+      language: system
+      types: [python]
+      pass_filenames: false
 
     - id: openapi
       name: openapi

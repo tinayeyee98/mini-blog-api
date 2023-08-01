@@ -1,22 +1,22 @@
 import pytest
 
+from .dummy_data import user_payload
+
 
 @pytest.mark.asyncio
-async def test_register_user(client, test_mini_blog_db):
-    payload = {"username": "testuser"}
-    response = await client.post("/api/v1/auth/register", json=payload, headers={})
+async def test_register_user_success(client):
+    response = await client.post(
+        "/api/v1/auth/register",
+        json=user_payload,
+        headers={"Authorization": "Bearer mocktoken"},
+    )
+    assert response.status_code == 200
+    assert "username" in response.json()
+    assert "password" in response.json()
 
-    if response.status_code == 200:
-        assert "username" in response.json()
-        assert "password" in response.json()
-
-        response_data = response.json()
-        assert response_data["username"] == "testuser"
-        assert "password" in response_data
-    elif response.status_code == 403:
-        assert response.json() == {"detail": "Username already exists."}
-    else:
-        assert False, f"Unexpected status code: {response.status_code}"
+    response_data = response.json()
+    assert response_data["username"] == "testuser"
+    assert "password" in response_data
 
 
 @pytest.mark.asyncio
