@@ -1,0 +1,43 @@
+repos:
+- repo: local
+  hooks:
+    - id: isort
+      name: isort
+      stages: [commit]
+      entry: poetry run isort
+      args: [src, tests]
+      language: system
+      types: [python]
+      pass_filenames: false
+
+    - id: black
+      name: black
+      stages: [commit]
+      entry: poetry run black
+      args: [src, tests]
+      language: system
+      types: [python]
+      pass_filenames: false
+
+    # - id: test
+    #   name: test
+    #   stages: [commit]
+    #   entry: poetry run pytest
+    #   language: system
+    #   types: [python]
+    #   pass_filenames: false
+
+    - id: openapi
+      name: openapi
+      stages: [commit]
+      entry: poetry run python scripts/openapi.py
+      language: system
+      types: [python]
+      pass_filenames: false
+
+    - id: build
+      name: build
+      stages: [push]
+      entry: scripts/build
+      language: script
+

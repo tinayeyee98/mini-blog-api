@@ -1,0 +1,80 @@
+[tool.poetry]
+name = "mini_blog_api"
+version = "0.1.0"
+description = "Backend server for mini-blog application"
+authors = ["Tin Aye Yee <tinayeyee6308@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0"
+fastapi = "^0.100.0"
+uvicorn = "^0.23.1"
+structlog = "^23.1.0"
+starlette-context = "^0.3.6"
+httpx = "^0.24.1"
+pymongo = "^4.4.1"
+requests = "^2.31.0"
+pydantic = "^2.1.1"
+pydantic-settings = "^2.0.2"
+asyncio = "^3.4.3"
+aiohttp = "^3.8.5"
+motor = "^3.2.0"
+bcrypt = "^4.0.1"
+python-multipart = "^0.0.6"
+pyjwt = "^2.8.0"
+authlib = "^1.2.1"
+python-jose = "^3.3.0"
+pre-commit = "^3.3.3"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-asyncio = "^0.21.1"
+autopep8 = "^2.0.2"
+black = "^23.7.0"
+isort = "^5.12.0"
+devtools = {extras = ["pygments"], version = "^0.8.0"}
+mongomock = "^4.1.2"
+
+[tool.pytest.ini_options]
+minversion = "6.2"
+addopts = "--cov --cov-report term-missing"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py38"]
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+
+[tool.flake8]
+max-line-length = 88
+max-complexity = 18
+ignore = "E203, E266, E501, E503"
+select = "B, C, E, F, W, T4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

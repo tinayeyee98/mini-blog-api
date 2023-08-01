@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+poetry build
+poetry run python scripts/openapi.py
