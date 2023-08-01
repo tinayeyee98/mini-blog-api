@@ -22,16 +22,16 @@ components:
       - app_version
       title: AppInfo
       type: object
-    AuthorPayload:
+    AuthPayload:
       properties:
         username:
-          title: Author Name
+          title: User Name
           type: string
       required:
       - username
-      title: AuthorPayload
+      title: AuthPayload
       type: object
-    Body_create_access_token_for_user_api_v1_auth_token_post:
+    Body_login_api_v1_auth_login_post:
       properties:
         client_id:
           anyOf:
@@ -62,12 +62,12 @@ components:
       required:
       - username
       - password
-      title: Body_create_access_token_for_user_api_v1_auth_token_post
+      title: Body_login_api_v1_auth_login_post
       type: object
     CardPayload:
       properties:
         author:
-          title: Author Name
+          title: Auth Name
           type: string
         category:
           title: Card's Category
@@ -160,13 +160,51 @@ components:
       flows:
         password:
           scopes: {}
-          tokenUrl: http://localhost:8000/api/v1/auth/token
+          tokenUrl: http://localhost:8000/api/v1/auth/login
       type: oauth2
 info:
   title: mini_blog_api
   version: 0.1.0
 openapi: 3.1.0
 paths:
+  /api/v1/auth/login:
+    post:
+      operationId: login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_login_api_v1_auth_login_post'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Login
+      tags:
+      - Auth Auth Endpoints
   /api/v1/auth/register:
     post:
       operationId: register_user_api_v1_auth_register_post
@@ -174,7 +212,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthorPayload'
+              $ref: '#/components/schemas/AuthPayload'
         required: true
       responses:
         '200':
@@ -204,45 +242,7 @@ paths:
           title: Service Temporarily Unavailable
       summary: Register User
       tags:
-      - Author Auth Endpoints
-  /api/v1/auth/token:
-    post:
-      operationId: create_access_token_for_user_api_v1_auth_token_post
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Body_create_access_token_for_user_api_v1_auth_token_post'
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Successful Response
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Not Found
-          title: Not Found
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-        '503':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Service Unavailable
-          title: Service Temporarily Unavailable
-      summary: Create Access Token For User
-      tags:
-      - Author Auth Endpoints
+      - Auth Auth Endpoints
   /api/v1/cards:
     get:
       operationId: get_card_list_api_v1_cards_get

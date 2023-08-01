@@ -3,22 +3,22 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
 from ..config import Settings, get_settings
-from ..models.author_model import AuthorPayload
+from ..models.auth_model import AuthPayload
 from ..models.base_model import default_responses
-from ..repositories.author_repository import UserRepository
+from ..repositories.auth_repository import AuthRepository
 from ..services.auth import generate_access_token
 
 log = structlog.get_logger()
 settings: Settings = get_settings()
 
 router = APIRouter(
-    tags=["Author Auth Endpoints"],
+    tags=["Auth Auth Endpoints"],
     responses=default_responses,
 )
 
 
 @router.post("/auth/register", responses=default_responses)
-async def register_user(user: AuthorPayload, user_repo: UserRepository = Depends()):
+async def register_user(user: AuthPayload, user_repo: AuthRepository = Depends()):
     existing_user = await user_repo.find_user(user.username)
 
     if existing_user:
@@ -26,16 +26,14 @@ async def register_user(user: AuthorPayload, user_repo: UserRepository = Depends
 
     user_doc = await user_repo.create_user(user)
 
-    raise HTTPException(
-        status_code=201, detail="Author account is created.", headers=user_doc
-    )
+    return user_doc
 
 
-@router.post("/auth/token")
-async def create_access_token_for_user(
+@router.post("/auth/login")
+async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
 ):
-    user = await UserRepository.validate_credentials(
+    user = await AuthRepository.validate_credentials(
         username=form_data.username, password=form_data.password
     )
 
