@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import List
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -22,12 +23,13 @@ class Settings(BaseSettings):
     db_uri: str = Field(default="mongodb://localhost:27017/", title="Database URI")
     db_name: str = Field(default="mini_blog_db", title="DB Name")
     password_length: int = Field(default=12, title="Random generate password length")
-    generate_apikey_url: str = Field(
-        default="http://localhost:8000/${api_prefix}/auth/token"
-    )
     jwt_secret: str = Field(default="miniblogtokensecret", title="JWT Token Secret")
     jwt_alg: str = Field(default="HS256", title="JWT Algorithm")
     token_exp: int = Field(default=300, title="Token Expiration")
+    routes_to_exclude: str = Field(
+        default="/auth/register,/auth/login",
+        title="Default routes to exclude in middleware",
+    )
 
     class Config:
         env_file = ".env"

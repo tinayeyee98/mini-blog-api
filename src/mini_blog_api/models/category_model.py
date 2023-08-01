@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional
 
-from bson.errors import InvalidId
 from bson.objectid import ObjectId
 from fastapi import Query
 from pydantic import Field

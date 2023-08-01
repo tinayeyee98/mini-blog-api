@@ -22,15 +22,6 @@ components:
       - app_version
       title: AppInfo
       type: object
-    AuthPayload:
-      properties:
-        username:
-          title: User Name
-          type: string
-      required:
-      - username
-      title: AuthPayload
-      type: object
     Body_login_api_v1_auth_login_post:
       properties:
         client_id:
@@ -66,11 +57,8 @@ components:
       type: object
     CardPayload:
       properties:
-        author:
-          title: Auth Name
-          type: string
         category:
-          title: Card's Category
+          title: Card's Category ID
           type: string
         content:
           title: Content of the Card
@@ -86,7 +74,6 @@ components:
       - name
       - status
       - category
-      - author
       - content
       title: CardPayload
       type: object
@@ -134,6 +121,15 @@ components:
           type: array
       title: HTTPValidationError
       type: object
+    UserAuthPayload:
+      properties:
+        username:
+          title: User Name
+          type: string
+      required:
+      - username
+      title: UserAuthPayload
+      type: object
     ValidationError:
       properties:
         loc:
@@ -155,13 +151,6 @@ components:
       - type
       title: ValidationError
       type: object
-  securitySchemes:
-    OAuth2PasswordBearer:
-      flows:
-        password:
-          scopes: {}
-          tokenUrl: http://localhost:8000/api/v1/auth/login
-      type: oauth2
 info:
   title: mini_blog_api
   version: 0.1.0
@@ -204,7 +193,7 @@ paths:
           title: Service Temporarily Unavailable
       summary: Login
       tags:
-      - Auth Auth Endpoints
+      - UserAuth Endpoints
   /api/v1/auth/register:
     post:
       operationId: register_user_api_v1_auth_register_post
@@ -212,7 +201,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthPayload'
+              $ref: '#/components/schemas/UserAuthPayload'
         required: true
       responses:
         '200':
@@ -242,99 +231,10 @@ paths:
           title: Service Temporarily Unavailable
       summary: Register User
       tags:
-      - Auth Auth Endpoints
+      - UserAuth Endpoints
   /api/v1/cards:
     get:
       operationId: get_card_list_api_v1_cards_get
-      parameters:
-      - in: query
-        name: name
-        required: false
-        schema:
-          title: Name
-          type: string
-      - in: header
-        name: authorization
-        required: false
-        schema:
-          title: Authorization
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Successful Response
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Not Found
-          title: Not Found
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-        '503':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Service Unavailable
-          title: Service Temporarily Unavailable
-      summary: Get Card List
-      tags:
-      - Cards Endpoints
-    post:
-      operationId: create_card_api_v1_cards_post
-      parameters:
-      - in: header
-        name: authorization
-        required: false
-        schema:
-          title: Authorization
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CardPayload'
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Successful Response
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Not Found
-          title: Not Found
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-        '503':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Service Unavailable
-          title: Service Temporarily Unavailable
-      summary: Create Card
-      tags:
-      - Cards Endpoints
-  /api/v1/cards/category:
-    get:
-      operationId: get_category_list_api_v1_cards_category_get
       parameters:
       - in: query
         name: skip
@@ -370,12 +270,226 @@ paths:
           - type: string
           - type: 'null'
           title: Name
-      - in: header
-        name: authorization
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Get Card List
+      tags:
+      - Cards Endpoints
+    post:
+      operationId: create_card_api_v1_cards_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardPayload'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Create Card
+      tags:
+      - Cards Endpoints
+  /api/v1/cards/{card_id}:
+    delete:
+      operationId: delete_card_by_name_api_v1_cards__card_id__delete
+      parameters:
+      - in: path
+        name: card_id
+        required: true
+        schema:
+          title: Card Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Delete Card By Name
+      tags:
+      - Cards Endpoints
+    get:
+      operationId: get_card_by_id_api_v1_cards__card_id__get
+      parameters:
+      - in: path
+        name: card_id
+        required: true
+        schema:
+          title: Card Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mini_blog_api__models__card_model__CardInput__1'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Get Card By Id
+      tags:
+      - Cards Endpoints
+    patch:
+      operationId: update_card_data_api_v1_cards__card_id__patch
+      parameters:
+      - in: path
+        name: card_id
+        required: true
+        schema:
+          title: Card Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+          title: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Service Unavailable
+          title: Service Temporarily Unavailable
+      summary: Update Card Data
+      tags:
+      - Cards Endpoints
+  /api/v1/categories:
+    get:
+      operationId: get_category_list_api_v1_categories_get
+      parameters:
+      - in: query
+        name: skip
         required: false
         schema:
-          title: Authorization
-          type: string
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: 0
+          title: Skip
+      - in: query
+        name: limit
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: 100
+          title: Limit
+      - in: query
+        name: id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+      - in: query
+        name: name
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
       responses:
         '200':
           content:
@@ -404,16 +518,9 @@ paths:
           title: Service Temporarily Unavailable
       summary: Get Category List
       tags:
-      - Card's Category Endpoints
+      - Category Endpoints
     post:
-      operationId: create_category_api_v1_cards_category_post
-      parameters:
-      - in: header
-        name: authorization
-        required: false
-        schema:
-          title: Authorization
-          type: string
+      operationId: create_category_api_v1_categories_post
       requestBody:
         content:
           application/json:
@@ -448,22 +555,16 @@ paths:
           title: Service Temporarily Unavailable
       summary: Create Category
       tags:
-      - Card's Category Endpoints
-  /api/v1/cards/category/{category_id}:
+      - Category Endpoints
+  /api/v1/categories/{category_id}:
     get:
-      operationId: get_site_by_site_code_api_v1_cards_category__category_id__get
+      operationId: get_site_by_site_code_api_v1_categories__category_id__get
       parameters:
       - in: path
         name: category_id
         required: true
         schema:
           title: Category Id
-          type: string
-      - in: header
-        name: authorization
-        required: false
-        schema:
-          title: Authorization
           type: string
       responses:
         '200':
@@ -494,100 +595,7 @@ paths:
           title: Service Temporarily Unavailable
       summary: Get Site By Site Code
       tags:
-      - Card's Category Endpoints
-  /api/v1/cards/{card_name}:
-    delete:
-      operationId: delete_card_by_name_api_v1_cards__card_name__delete
-      parameters:
-      - in: path
-        name: card_name
-        required: true
-        schema:
-          title: Card Name
-          type: string
-      - in: header
-        name: authorization
-        required: false
-        schema:
-          title: Authorization
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Successful Response
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Not Found
-          title: Not Found
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-        '503':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Service Unavailable
-          title: Service Temporarily Unavailable
-      security:
-      - OAuth2PasswordBearer: []
-      summary: Delete Card By Name
-      tags:
-      - Cards Endpoints
-    patch:
-      operationId: update_card_data_api_v1_cards__card_name__patch
-      parameters:
-      - in: path
-        name: card_name
-        required: true
-        schema:
-          title: Card Name
-          type: string
-      - in: header
-        name: authorization
-        required: false
-        schema:
-          title: Authorization
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Successful Response
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Not Found
-          title: Not Found
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-        '503':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorMessage'
-          description: Service Unavailable
-          title: Service Temporarily Unavailable
-      security:
-      - OAuth2PasswordBearer: []
-      summary: Update Card Data
-      tags:
-      - Cards Endpoints
+      - Category Endpoints
   /internal/app_info:
     get:
       operationId: app_info_internal_app_info_get

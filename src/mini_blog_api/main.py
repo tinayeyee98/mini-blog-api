@@ -13,7 +13,7 @@ from .controllers import (
     category_controller,
     internal_controller,
 )
-from .middleware import configure_middleware
+from .middleware import Authorization
 from .models.base_model import AppInfo
 from .repositories.auth_repository import AuthRepository
 from .repositories.card_repository import CardRepository
@@ -61,8 +61,7 @@ def create_app(app_name: str = app_name, app_version: str = app_version) -> Mini
     # Additional information for openapi docs
     app.openapi_tags = openapi_tags
 
-    # HTTP filters
-    configure_middleware(app)
+    app.add_middleware(Authorization)
 
     # Register application lifecycle envents
     app.add_event_handler("startup", startup)
