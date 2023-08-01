@@ -19,9 +19,6 @@ RUN pip install --no-cache-dir --upgrade pip
 # Install the required python packages
 RUN pip install .
 
-# Copy the entire application directory into the container
-COPY mini-blog-api/ .
-
 # Expose the port on which FastAPI will run
 EXPOSE 8000
 
