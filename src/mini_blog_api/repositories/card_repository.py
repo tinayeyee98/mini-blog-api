@@ -133,7 +133,7 @@ class CardRepository:
                     status_code=403, detail="You are unauthorized to edit this card"
                 )
 
-            return await cls.collection.delete_one(dict(_id=card_id))
+            return await cls.collection.delete_one(dict(_id=ObjectId(card_id)))
 
         except ServerSelectionTimeoutError as error:
             log.msg(error)
